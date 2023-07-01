@@ -75,11 +75,18 @@ def policy_evaluation(P, nS, nA, policy, gamma=0.9, tol=1e-3):
     """
 
     value_function = np.zeros(nS)
+    prev_value_function = np.zeros(nS)
+    k = 0
+    while k == 0 or np.linalg.norm(value_function - prev_value_function, ord=np.inf) > tol:
+        prev_value_function = value_function.copy()
+        for s in range(nS):
+            pi_s = policy[s]
+            temp_sum = 0
+            for prob, next_state, reward, _ in P[s][pi_s]:
+                temp_sum += prob * (gamma * prev_value_function[next_state] + reward)
+            value_function[s] = temp_sum
+        k += 1
 
-    ############################
-    # YOUR IMPLEMENTATION HERE #
-
-    ############################
     return value_function
 
 
