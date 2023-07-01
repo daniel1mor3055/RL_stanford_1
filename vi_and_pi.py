@@ -58,21 +58,21 @@ the parameters P, nS, nA, gamma are defined as follows:
 def policy_evaluation(P, nS, nA, policy, gamma=0.9, tol=1e-3):
     """Evaluate the value function from a given policy.
 
-	Parameters
-	----------
-	P, nS, nA, gamma:
-		defined at beginning of file
-	policy: np.array[nS]
-		The policy to evaluate. Maps states to actions.
-	tol: float
-		Terminate policy evaluation when
-			max |value_function(s) - prev_value_function(s)| < tol
-	Returns
-	-------
-	value_function: np.ndarray[nS]
-		The value function of the given policy, where value_function[s] is
-		the value of state s
-	"""
+    Parameters
+    ----------
+    P, nS, nA, gamma:
+            defined at beginning of file
+    policy: np.array[nS]
+            The policy to evaluate. Maps states to actions.
+    tol: float
+            Terminate policy evaluation when
+                    max |value_function(s) - prev_value_function(s)| < tol
+    Returns
+    -------
+    value_function: np.ndarray[nS]
+            The value function of the given policy, where value_function[s] is
+            the value of state s
+    """
 
     value_function = np.zeros(nS)
 
@@ -86,22 +86,22 @@ def policy_evaluation(P, nS, nA, policy, gamma=0.9, tol=1e-3):
 def policy_improvement(P, nS, nA, value_from_policy, policy, gamma=0.9):
     """Given the value function from policy improve the policy.
 
-	Parameters
-	----------
-	P, nS, nA, gamma:
-		defined at beginning of file
-	value_from_policy: np.ndarray
-		The value calculated from the policy
-	policy: np.array
-		The previous policy.
+    Parameters
+    ----------
+    P, nS, nA, gamma:
+            defined at beginning of file
+    value_from_policy: np.ndarray
+            The value calculated from the policy
+    policy: np.array
+            The previous policy.
 
-	Returns
-	-------
-	new_policy: np.ndarray[nS]
-		An array of integers. Each integer is the optimal action to take
-		in that state according to the environment dynamics and the
-		given value function.
-	"""
+    Returns
+    -------
+    new_policy: np.ndarray[nS]
+            An array of integers. Each integer is the optimal action to take
+            in that state according to the environment dynamics and the
+            given value function.
+    """
 
     new_policy = np.zeros(nS, dtype="int")
 
@@ -115,48 +115,49 @@ def policy_improvement(P, nS, nA, value_from_policy, policy, gamma=0.9):
 def policy_iteration(P, nS, nA, gamma=0.9, tol=1e-3):
     """Runs policy iteration.
 
-	You should call the policy_evaluation() and policy_improvement() methods to
-	implement this method.
+    You should call the policy_evaluation() and policy_improvement() methods to
+    implement this method.
 
-	Parameters
-	----------
-	P, nS, nA, gamma:
-		defined at beginning of file
-	tol: float
-		tol parameter used in policy_evaluation()
-	Returns:
-	----------
-	value_function: np.ndarray[nS]
-	policy: np.ndarray[nS]
-	"""
+    Parameters
+    ----------
+    P, nS, nA, gamma:
+            defined at beginning of file
+    tol: float
+            tol parameter used in policy_evaluation()
+    Returns:
+    ----------
+    value_function: np.ndarray[nS]
+    policy: np.ndarray[nS]
+    """
 
     value_function = np.zeros(nS)
     policy = np.zeros(nS, dtype=int)
-
-    ############################
-    # YOUR IMPLEMENTATION HERE #
-
-    ############################
+    improved_policy = np.zeros(nS, dtype=int)
+    i = 0
+    while i == 0 or np.linalg.norm(policy - improved_policy, ord=1):
+        value_function = policy_evaluation(P, nS, nA, policy, gamma, tol)
+        policy, improved_policy = improved_policy, policy_improvement(P, nS, nA, value_function, policy, gamma)
+        i += 1
     return value_function, policy
 
 
 def value_iteration(P, nS, nA, gamma=0.9, tol=1e-3):
     """
-	Learn value function and policy by using value iteration method for a given
-	gamma and environment.
+    Learn value function and policy by using value iteration method for a given
+    gamma and environment.
 
-	Parameters:
-	----------
-	P, nS, nA, gamma:
-		defined at beginning of file
-	tol: float
-		Terminate value iteration when
-			max |value_function(s) - prev_value_function(s)| < tol
-	Returns:
-	----------
-	value_function: np.ndarray[nS]
-	policy: np.ndarray[nS]
-	"""
+    Parameters:
+    ----------
+    P, nS, nA, gamma:
+            defined at beginning of file
+    tol: float
+            Terminate value iteration when
+                    max |value_function(s) - prev_value_function(s)| < tol
+    Returns:
+    ----------
+    value_function: np.ndarray[nS]
+    policy: np.ndarray[nS]
+    """
 
     value_function = np.zeros(nS)
     policy = np.zeros(nS, dtype=int)
@@ -179,7 +180,7 @@ def render_single(env, policy, max_steps=100):
       attributes.
     Policy: np.array of shape [env.nS]
       The action to take at a given state
-  """
+    """
 
     episode_reward = 0
     ob, _ = env.reset()
@@ -193,11 +194,7 @@ def render_single(env, policy, max_steps=100):
             break
     env.render()
     if not done:
-        print(
-            "The agent didn't reach a terminal state in {} steps.".format(
-                max_steps
-            )
-        )
+        print("The agent didn't reach a terminal state in {} steps.".format(max_steps))
     else:
         print("Episode reward: %f" % episode_reward)
 
@@ -224,4 +221,3 @@ if __name__ == "__main__":
 
     V_vi, p_vi = value_iteration(env.P, env.nS, env.nA, gamma=0.9, tol=1e-3)
     render_single(env, p_vi, 100)
-
