@@ -111,11 +111,16 @@ def policy_improvement(P, nS, nA, value_from_policy, policy, gamma=0.9):
     """
 
     new_policy = np.zeros(nS, dtype="int")
+    q_pi_sa = np.zeros(shape=(nS, nA))
+    for s in range(nS):
+        for a in range(nA):
+            temp_sum = 0
+            for prob, next_state, reward, _ in P[s][a]:
+                temp_sum += prob * (reward + gamma * value_from_policy[next_state])
+            q_pi_sa[s][a] = temp_sum
 
-    ############################
-    # YOUR IMPLEMENTATION HERE #
+    new_policy = np.argmax(q_pi_sa, axis=1)
 
-    ############################
     return new_policy
 
 
@@ -139,11 +144,11 @@ def policy_iteration(P, nS, nA, gamma=0.9, tol=1e-3):
 
     value_function = np.zeros(nS)
     policy = np.zeros(nS, dtype=int)
-    improved_policy = np.zeros(nS, dtype=int)
+    prev_policy = np.zeros(nS, dtype=int)
     i = 0
-    while i == 0 or np.linalg.norm(policy - improved_policy, ord=1):
+    while i == 0 or np.linalg.norm(policy - prev_policy, ord=1) > 0:
         value_function = policy_evaluation(P, nS, nA, policy, gamma, tol)
-        policy, improved_policy = improved_policy, policy_improvement(P, nS, nA, value_function, policy, gamma)
+        prev_policy, policy = policy, policy_improvement(P, nS, nA, value_function, policy, gamma)
         i += 1
     return value_function, policy
 
@@ -167,11 +172,23 @@ def value_iteration(P, nS, nA, gamma=0.9, tol=1e-3):
     """
 
     value_function = np.zeros(nS)
+    prev_value_function = np.zeros(nS)
     policy = np.zeros(nS, dtype=int)
-    ############################
-    # YOUR IMPLEMENTATION HERE #
+    k = 0
+    while k == 0 or np.linalg.norm(value_function - prev_value_function, ord=1) > 0:
+        prev_value_function = value_function.copy()
+        for s in range(nS):
+            temp_max = 0
+            for a in range(nA):
+                temp_sum = 0
+                for prob, next_state, reward, _ in P[s][a]:
+                    temp_sum += prob * (reward + gamma * prev_value_function[next_state])
+                if temp_sum > temp_max:
+                    temp_max = temp_sum
+                    policy[s] = a
+            value_function[s] = temp_max
+        k += 1
 
-    ############################
     return value_function, policy
 
 
